@@ -6,8 +6,8 @@ return [
 
     'admin' => [
         'host' => env('TENANCY_ADMIN_HOST', env('DB_HOST', '127.0.0.1')),
-        'port' => env('TENANCY_ADMIN_PORT', env('DB_PORT', '5432')),
-        'database' => env('TENANCY_ADMIN_DATABASE', 'postgres'),
+        'port' => env('TENANCY_ADMIN_PORT', env('DB_PORT', '3306')),
+        'database' => env('TENANCY_ADMIN_DATABASE', 'forge'),
         'username' => env('TENANCY_ADMIN_USERNAME', env('DB_USERNAME')),
         'password' => env('TENANCY_ADMIN_PASSWORD', env('DB_PASSWORD')),
     ],
