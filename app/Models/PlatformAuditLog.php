@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlatformAuditLog extends Model
 {
-    // protected $connection = 'pgsql';
+    protected $connection = 'mysql';
     protected $fillable = [
         'tenant_id', 'user_id', 'action', 'ip', 'user_agent', 'meta'
     ];

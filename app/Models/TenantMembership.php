@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TenantMembership extends Model
 {
-    // protected $connection = 'pgsql';
+    protected $connection = 'mysql';
+    public $timestamps = true;
 
     protected $fillable = [
         'tenant_id',

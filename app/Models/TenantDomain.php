@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TenantDomain extends Model
 {
-    // protected $connection = 'pgsql';
+    protected $connection = 'mysql';
     protected $fillable = [
         'tenant_id',
         'host', // exact host match, e.g. demo.krema.ba or salon.com
