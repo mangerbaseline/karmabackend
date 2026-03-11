@@ -22,6 +22,11 @@ WORKDIR /var/www/html
 # Copy application code
 COPY . .
 
+# Create necessary directories and set permissions before composer install
+RUN mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 # Install dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -29,8 +34,8 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 # Note: If docker/nginx/default.conf doesn't exist, we will create a basic one.
 
-# Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Set permissions (Optional, as it was done before composer install)
+# RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Expose port 10000 (Render's default)
 EXPOSE 10000
