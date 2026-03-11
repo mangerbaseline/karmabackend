@@ -14,14 +14,11 @@ class AuthController extends Controller
     {
         $creds = $request->validated();
 
-        // UPDATE 1: Use the 'web' guard specifically for the attempt
         if (!Auth::guard('web')->attempt($creds)) {
             abort(401, 'Invalid credentials');
         }
 
-        
         /** @var \App\Models\User $user */
-        // UPDATE 2: Retrieve the user from the 'web' guard
         $user = Auth::guard('web')->user();
 
         return response()->json([
