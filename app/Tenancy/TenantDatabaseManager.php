@@ -5,6 +5,7 @@ namespace App\Tenancy;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PDO;
 use RuntimeException;
@@ -68,10 +69,14 @@ class TenantDatabaseManager
     {
         $this->validateDbIdentifier($dbName);
 
+        Log::info('[Tenancy] Switching to database: ' . $dbName);
+
         Config::set('database.connections.tenant.database', $dbName);
 
         DB::purge('tenant');
         DB::reconnect('tenant');
+
+        Log::info('[Tenancy] Connection "tenant" reconnected to: ' . $dbName);
     }
 
     /**

@@ -10,7 +10,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
-    // protected $connection = 'pgsql'; // central identity
+    protected $connection = 'tenant';
 
     protected $fillable = [
         'name',
