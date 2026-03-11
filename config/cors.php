@@ -6,6 +6,7 @@ return [
     'allowed_origins' => [
         'http://localhost:5173',
         'http://localhost:3000',
+        'https://karmafrontend.vercel.app',
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => [
@@ -18,5 +19,5 @@ return [
     ],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 ];
