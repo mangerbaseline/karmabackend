@@ -10,19 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LogContext
 {
-    public function __construct(private TenantContext $tenantContext)
-    {
-    }
+    public function __construct(private TenantContext $tenantContext) {}
 
     public function handle(Request $request, Closure $next): Response
     {
         $tenantId = $this->tenantContext->tenantId();
-        // Avoid calling $request->user() here as it triggers DB connection 
-        // before resolveTenant might have run for multitenant models.
+        $userId = $request->user()?->id;
         $rid = $request->headers->get('X-Request-Id');
 
         Log::withContext([
             'tenant_id' => $tenantId,
+            'user_id' => $userId,
             'request_id' => $rid,
         ]);
 

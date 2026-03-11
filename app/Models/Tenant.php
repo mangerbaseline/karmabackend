@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tenant extends Model
 {
-    protected $connection = 'mysql';
+    protected $connection = 'pgsql';
     protected $fillable = [
         'name',
         'slug',

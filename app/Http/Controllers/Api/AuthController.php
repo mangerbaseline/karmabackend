@@ -14,12 +14,12 @@ class AuthController extends Controller
     {
         $creds = $request->validated();
 
-        if (!Auth::guard('web')->attempt($creds)) {
+        if (!Auth::attempt($creds)) {
             abort(401, 'Invalid credentials');
         }
 
         /** @var \App\Models\User $user */
-        $user = Auth::guard('web')->user();
+        $user = $request->user();
 
         return response()->json([
             'token' => $user->createToken('spa')->plainTextToken,

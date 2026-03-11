@@ -10,20 +10,7 @@ class Salon extends Model
     protected $connection = 'tenant';
 
     protected $fillable = [
-        'name', 'legal_name', 'slug', 'currency', 'currency_code', 'timezone', 'status',
-        'email', 'phone', 'city', 'country_code', 'booking_enabled', 'loyalty_enabled', 'inventory_enabled', 'is_active'
-    ];
-
-    public function getCurrencyAttribute($value)
-    {
-        return $value ?? $this->currency_code;
-    }
-
-    protected $casts = [
-        'booking_enabled' => 'boolean',
-        'loyalty_enabled' => 'boolean',
-        'inventory_enabled' => 'boolean',
-        'is_active' => 'boolean',
+        'name', 'slug', 'currency', 'timezone', 'status',
     ];
 
     public function members(): HasMany

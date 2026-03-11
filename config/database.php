@@ -3,46 +3,39 @@
 use Illuminate\Support\Str;
 
 return [
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     'connections' => [
-        'mysql' => [
-            'driver' => 'mysql',
+        'pgsql' => [
+            'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'krema_central'),
+            'username' => env('DB_USERNAME', 'krema'),
             'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
+            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ]),
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
+        /*
+        | Tenant Connection (PostgreSQL DB-per-tenant)
+        | This database name is overwritten dynamically per request/command.
+        */
         'tenant' => [
-            'driver' => 'mysql',
+            'driver' => 'pgsql',
             'host' => env('TENANT_DB_HOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('TENANT_DB_PORT', env('DB_PORT', '3306')),
+            'port' => env('TENANT_DB_PORT', env('DB_PORT', '5432')),
             'database' => env('TENANT_DB_DATABASE', 'tenant_placeholder'),
             'username' => env('TENANT_DB_USERNAME', env('DB_USERNAME')),
             'password' => env('TENANT_DB_PASSWORD', env('DB_PASSWORD')),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
+            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ]),
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
     ],
 

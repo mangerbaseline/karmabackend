@@ -5,7 +5,6 @@ namespace App\Tenancy;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PDO;
 use RuntimeException;
@@ -21,13 +20,15 @@ class TenantDatabaseManager
     public function makeDbName(string $slug): string
     {
         $prefix = config('krema_tenancy.tenant_db_prefix', 'krema_tenant_');
-        // MySQL database names have limits but 64 is safe enough.
+        // Postgres DB name must be <= 63 chars. Keep it tight.
         $candidate = $prefix . Str::replace('-', '_', Str::lower($slug));
-        return substr($candidate, 0, 64);
+        return substr($candidate, 0, 63);
     }
 
     /**
-     * Create the tenant database (MySQL).
+     * Create the tenant database (PostgreSQL).
+     * Requires the DB user to have CREATE DATABASE privileges,
+     * or enable admin connection via config/krema_tenancy.php.
      */
     public function createDatabase(string $dbName): void
     {
@@ -39,27 +40,27 @@ class TenantDatabaseManager
 
         if (config('krema_tenancy.use_admin_connection', false)) {
             $pdo = $this->adminPdo();
-            $pdo->exec('CREATE DATABASE ' . $this->quoteIdent($dbName) . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+            $pdo->exec('CREATE DATABASE ' . $this->quoteIdent($dbName) . ' WITH ENCODING = \'UTF8\'');
             return;
         }
 
         // Use Laravel central connection
-        DB::statement('CREATE DATABASE ' . $this->quoteIdent($dbName) . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        DB::statement('CREATE DATABASE ' . $this->quoteIdent($dbName) . ' WITH ENCODING = \'UTF8\'');
     }
 
     public function databaseExists(string $dbName): bool
     {
         $this->validateDbIdentifier($dbName);
 
-        $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
+        $sql = "SELECT 1 FROM pg_database WHERE datname = ?";
         if (config('krema_tenancy.use_admin_connection', false)) {
             $pdo = $this->adminPdo();
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$dbName]);
-            return (bool)$stmt->fetchColumn();
+            return (bool) $stmt->fetchColumn();
         }
 
-        return (bool)DB::selectOne($sql, [$dbName]);
+        return (bool) DB::selectOne($sql, [$dbName]);
     }
 
     /**
@@ -69,14 +70,10 @@ class TenantDatabaseManager
     {
         $this->validateDbIdentifier($dbName);
 
-        Log::info('[Tenancy] Switching to database: ' . $dbName);
-
         Config::set('database.connections.tenant.database', $dbName);
 
         DB::purge('tenant');
         DB::reconnect('tenant');
-
-        Log::info('[Tenancy] Connection "tenant" reconnected to: ' . $dbName);
     }
 
     /**
@@ -89,6 +86,7 @@ class TenantDatabaseManager
         $path = config('krema_tenancy.tenant_migration_path', 'database/migrations');
 
         if ($fresh) {
+            // NOTE: this will wipe the tenant DB schema.
             \Artisan::call('migrate:fresh', [
                 '--database' => 'tenant',
                 '--path' => $path,
@@ -107,7 +105,7 @@ class TenantDatabaseManager
     private function adminPdo(): PDO
     {
         $cfg = config('krema_tenancy.admin');
-        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $cfg['host'], $cfg['port'], $cfg['database']);
+        $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', $cfg['host'], $cfg['port'], $cfg['database']);
         return new PDO($dsn, $cfg['username'], $cfg['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
@@ -115,14 +113,15 @@ class TenantDatabaseManager
 
     private function validateDbIdentifier(string $dbName): void
     {
-        if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $dbName)) {
+        // strict: letters numbers underscore only
+        if (!preg_match('/^[a-zA-Z0-9_]{1,63}$/', $dbName)) {
             throw new RuntimeException('Invalid database identifier.');
         }
     }
 
     private function quoteIdent(string $ident): string
     {
-        // safe quote for mysql identifiers
-        return '`' . str_replace('`', '``', $ident) . '`';
+        // safe quote for postgres identifiers
+        return '"' . str_replace('"', '""', $ident) . '"';
     }
 }
