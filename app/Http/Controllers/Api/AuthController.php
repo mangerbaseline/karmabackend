@@ -15,7 +15,13 @@ class AuthController extends Controller
         $creds = $request->validated();
 
         if (!Auth::guard('web')->attempt($creds)) {
-            abort(401, 'Invalid credentials');
+            // abort() throws a HttpException which bubbles up and
+            // shows the stack trace seen in the logs.  Instead of
+            // throwing we return a proper JSON response so the client
+            // can read the error without an exception being logged.
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
         }
 
         /** @var \App\Models\User $user */
