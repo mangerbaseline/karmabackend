@@ -14,9 +14,12 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'phone',
         'password',
+        'role',
         'is_superadmin',
         'is_active',
         'last_login_at',
@@ -32,5 +35,13 @@ class User extends Authenticatable
         'is_active' => 'boolean',
         'last_login_at' => 'datetime',
         'email_verified_at' => 'datetime',
+        'role' => 'string',
     ];
+
+    public function getNameAttribute($value)
+    {
+        if ($value)
+            return $value;
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+    }
 }

@@ -10,11 +10,39 @@ class Staff extends Model
 {
     protected $connection = 'tenant';
 
-    protected $table = 'staff';
+    protected $table = 'staff_profiles';
 
     protected $fillable = [
-        'salon_id','name','title','is_active','sort_order','avatar_url'
+        'salon_id',
+        'user_id',
+        'name',
+        'title',
+        'job_title',
+        'is_active',
+        'sort_order',
+        'avatar_url',
+        'commission_percent',
+        'employment_type',
+        'can_take_bookings',
+        'is_visible_online',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Alias for SQL compatibility
+    public function getJobTitleAttribute($value)
+    {
+        return $value ?? $this->title;
+    }
+
+    public function setJobTitleAttribute($value)
+    {
+        $this->title = $value;
+        $this->attributes['job_title'] = $value;
+    }
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -27,8 +55,8 @@ class Staff extends Model
 
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class, 'service_staff')
-            ->withPivot(['salon_id','price_cents_override','duration_min_override','is_active'])
+        return $this->belongsToMany(Service::class , 'service_staff')
+            ->withPivot(['salon_id', 'price_cents_override', 'duration_min_override', 'is_active'])
             ->withTimestamps();
     }
 }
