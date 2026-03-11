@@ -21,6 +21,7 @@ class ResolveTenant
 
     public function handle(Request $request, Closure $next): Response
     {
+        $host = strtolower($request->getHost());
         Log::info('[Tenancy] Resolving host: ' . $host);
 
         $domain = TenantDomain::with('tenant')
