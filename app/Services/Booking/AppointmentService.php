@@ -156,13 +156,7 @@ class AppointmentService
 
     private function acquireLockOrThrow(int $salonId, int $staffId, string $date): void
     {
-        try {
-            $key = "appt:{$salonId}:{$staffId}:{$date}";
-            $row = DB::selectOne("SELECT GET_LOCK(?, 2) as l", [$key]);
-            $ok = (int)($row->l ?? 0);
-            if ($ok !== 1) abort(409, 'Booking busy, please retry.');
-        } catch (\Throwable $e) {
-            // If DB doesn't support GET_LOCK, do nothing; overlap check still protects.
-        }
+        // Advisory locking removed for PostgreSQL compatibility. 
+        // Logic relies on overlap check within the transaction.
     }
 }

@@ -12,19 +12,28 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $creds = $request->validated();
+        try {
+            $creds = $request->validated();
 
-        if (!Auth::attempt($creds)) {
-            abort(401, 'Invalid credentials');
+            if (!Auth::attempt($creds)) {
+                return response()->json([
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            $user = Auth::user();
+            $token = $user->createToken('spa')->plainTextToken;
+
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Server Error: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
-
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
-        return response()->json([
-            'token' => $user->createToken('spa')->plainTextToken,
-            'user' => $user,
-        ]);
     }
 
     public function me(Request $request)
