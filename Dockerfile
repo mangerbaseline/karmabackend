@@ -6,12 +6,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     git unzip zip curl ca-certificates \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-    libzip-dev \
+    libzip-dev libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions for MySQL and Laravel
+# Install PHP extensions for PostgreSQL and Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) pdo_mysql zip gd opcache
+    && docker-php-ext-install -j$(nproc) pdo_pgsql pdo_mysql zip gd opcache
 
 # Copy Composer from official image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

@@ -14,6 +14,7 @@ return [
         'X-Requested-With',
         'Authorization',
         'X-Salon-Id',
+        'X-Request-Id',
         'Accept',
         'Origin',
     ],
